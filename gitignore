@@ -1,0 +1,12 @@
+# Dataset — downloaded by the notebook, not committed
+data/
+
+# Python
+__pycache__/
+*.py[cod]
+
+# Jupyter
+.ipynb_checkpoints/
+
+# OS
+.DS_Store
