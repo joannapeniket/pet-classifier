@@ -1,23 +1,23 @@
 # Pet Breed Classifier — Transfer Learning with ResNet18
 
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/YOUR-USERNAME/pet-classifier/blob/main/notebooks/train.ipynb)
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/joannapeniket/pet-classifier/blob/main/pet_classifier.ipynb)
 
 Fine-grained classification of the 37 cat and dog breeds in the Oxford-IIIT Pet
 dataset, using an ImageNet-pretrained ResNet18 as a frozen feature extractor
 with a linear classification head trained on top. Runs end to end on a free
 Colab T4 GPU in under ten minutes.
 
-![Sample predictions on held-out test images](outputs/predictions.png)
+![Sample predictions on held-out test images](predictions.png)
 
 ## Results
 
 | | |
 |---|---|
-| **Test accuracy (frozen backbone)** | **XX.X%** |
-| Test accuracy (after fine-tuning `layer4`) | XX.X% |
+| **Test accuracy (frozen backbone)** | **87.9%** |
+| Test accuracy (after fine-tuning `layer4`) | 88.2% |
 | Trainable parameters | 18,981 of 11,195,493 (0.17%) |
 | Random-guess baseline | 2.7% |
-| Training time | ~X minutes on a Colab T4 |
+| Training time | ~7 minutes on a Colab T4 |
 
 ## Approach
 
@@ -49,23 +49,20 @@ assigned to the closest centroid. It has no learned parameters at all.
 
 | Method | Test accuracy |
 |---|---|
-| Nearest centroid, cosine | XX.X% |
-| Nearest centroid, Euclidean | XX.X% |
-| Trained linear head | XX.X% |
+| Nearest centroid, cosine | 87.0% |
+| Nearest centroid, Euclidean | 86.6% |
+| Trained linear head | 87.9% |
 
-The gap between the trained head and the best centroid method measures how much
-the learned classifier adds over the geometry that the frozen backbone already
-provides. <!-- One or two sentences on what your gap actually shows. A small gap
-means the pretrained features already cluster the breeds; a large gap means the
-head is doing substantial work. -->
+The gap is small: the frozen ResNet18 backbone already separates most breeds cleanly by itself, and the trained head adds only a modest 0.9 percentage points over simply picking the nearest breed centroid. Most of this model's accuracy comes from the pretrained representation, not from anything learned specifically for pets.
 
 Cross-referencing the confusion matrix against centroid geometry gives a
-correlation of **X.XX** between how often two breeds are confused and how close
-their class centroids sit in embedding space — <!-- what this tells you: are the
-model's mistakes geometrically explicable? -->
+correlation of **+0.41** between how often two breeds are confused and how close
+their class centroids sit in embedding space — a moderate positive relationship.
+Breeds with similar centroids are more likely to be confused, but plenty of the
+variance comes from something else (pose, lighting, individual animals) that pure
+centroid distance doesn't capture.
 
-The most-confused breed pairs are <!-- e.g. American Bulldog / American Pit Bull
-Terrier -->, which are also among the closest in the embedding space.
+The most-confused pairs are exactly what you'd expect from breed standards, not model weakness: American Pit Bull Terrier, American Bulldog and Staffordshire Bull Terrier are all muscular, short-coated breeds that are notoriously difficult to tell apart even for experienced owners; Birman and Ragdoll are both long-haired pointed cat breeds; Egyptian Mau and Bengal are both spotted shorthairs. The model's errors track real visual similarity between breeds, not random noise.
 
 ## Repository structure
 
@@ -73,17 +70,15 @@ Terrier -->, which are also among the closest in the embedding space.
 pet-classifier/
 ├── README.md
 ├── requirements.txt
-├── notebooks/
-│   └── train.ipynb          # data, model, training, evaluation, analysis
-└── outputs/
-    └── predictions.png      # sample test predictions
+├── pet_classifier.ipynb     # data, model, training, evaluation, analysis
+└── predictions.png          # sample test predictions
 ```
 
 ## Running it
 
 The notebook is written for Google Colab and needs no local setup:
 
-1. Open `notebooks/train.ipynb` in Colab (badge above).
+1. Open `pet_classifier.ipynb` in Colab (badge above).
 2. `Runtime → Change runtime type → T4 GPU`.
 3. `Runtime → Run all`. The dataset (~800 MB) downloads on first run.
 
